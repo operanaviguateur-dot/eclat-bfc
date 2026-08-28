@@ -1,8 +1,16 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
+import { db } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
+
+function createAxiosClient() {
+  return {
+    get: async () => ({
+      id: appParams.appId,
+      public_settings: {},
+    }),
+  };
+}
 
 const AuthContext = createContext();
 

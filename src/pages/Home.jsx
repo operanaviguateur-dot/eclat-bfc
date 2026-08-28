@@ -1,12 +1,11 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
-
 import React, { useState, useEffect, useRef } from "react";
 import { Menu, Sparkles } from "lucide-react";
+import { db } from "@/api/base44Client";
 
 import Sidebar from "@/components/chat/Sidebar";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
-import ModelSelector, { MODELS } from "@/components/chat/ModelSelector";
+import ModelSelector from "@/components/chat/ModelSelector";
 import ThemeToggle from "@/components/chat/ThemeToggle";
 
 const STORAGE_KEY = "lumiere_conversations";
