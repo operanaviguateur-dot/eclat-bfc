@@ -1,9 +1,8 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
-
 import React, { useState, useEffect, useRef } from "react";
 import { Menu, Sparkles } from "lucide-react";
 
-import Sidebar from "@/components/chat/Sidebar";
+import { db } from "@/base44Client";
+import Sidebar from "@/ChatSidebar";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
 import ModelSelector, { MODELS } from "@/components/chat/ModelSelector";
@@ -132,7 +131,7 @@ export default function Home() {
           .map((m) => `${m.role === "user" ? "Utilisateur" : "Assistant"}: ${m.content}`)
           .join("\n\n");
 
-        const prompt = `Tu es base44, un assistant IA utile, clair et concis. Réponds en français, en Markdown quand c'est pertinent. Si des fichiers ou images sont joints, appuie-toi dessus.\n\n${history}\n\nAssistant:`;
+        const prompt = `Tu es Éclat BFC, un assistant IA utile, clair et concis. Réponds en français, en Markdown quand c'est pertinent. Si des fichiers ou images sont joints, appuie-toi dessus.\n\n${history}\n\nAssistant:`;
 
         const useWeb = ["gemini_3_flash", "gemini_3_1_pro"].includes(model);
         const res = await db.integrations.Core.InvokeLLM({
@@ -187,9 +186,9 @@ export default function Home() {
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <Sparkles className="h-4 w-4 text-muted-foreground" />
+            <Sparkles className="h-4 w-4 text-primary" />
             <h1 className="font-heading text-sm font-medium tracking-tight truncate">
-              {active?.title || "base44"}
+              {active?.title || "Éclat BFC"}
             </h1>
           </div>
           <div className="flex items-center gap-2">
@@ -202,14 +201,14 @@ export default function Home() {
           <div className="mx-auto max-w-3xl">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center px-6 py-24 text-center">
-                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-foreground text-background">
+                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
                   <Sparkles className="h-6 w-6" />
                 </div>
                 <h2 className="font-heading text-2xl font-semibold tracking-tight">
                   Comment puis-je vous aider ?
                 </h2>
                 <p className="mt-2 max-w-md text-sm text-muted-foreground">
-                  Posez une question, demandez un texte, une idée ou une explication. base44 répond avec clarté.
+                  Posez une question, demandez un texte, une idée ou une analyse. Éclat BFC répond avec clarté et précision.
                 </p>
               </div>
             ) : (
@@ -225,7 +224,7 @@ export default function Home() {
                 ))}
                 {loading && (
                   <div className="flex gap-4 px-4 sm:px-6 py-6 bg-muted/30">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-foreground text-background">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                       <Sparkles className="h-4 w-4" />
                     </div>
                     <div className="flex items-center gap-1.5 pt-6">
