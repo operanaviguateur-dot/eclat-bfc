@@ -23,6 +23,7 @@ function ClaudeBurst({ className }) {
 }
 
 export default function ModelLogo({ modelId, className = "h-4 w-4" }) {
+  if (!modelId) return null;
   if (modelId.startsWith("gpt")) {
     return (
       <svg viewBox="0 0 24 24" className={className} fill="currentColor">

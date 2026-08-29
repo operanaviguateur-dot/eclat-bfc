@@ -6,12 +6,9 @@ import {
   Sparkles,
   Zap,
   Shield,
-  Search,
   CheckCircle2,
   ExternalLink,
-  Bot,
-  Flame,
-  Globe
+  Bot
 } from "lucide-react";
 import { MODELS } from "@/components/chat/ModelSelector";
 import ModelLogo from "@/components/chat/ModelLogo";

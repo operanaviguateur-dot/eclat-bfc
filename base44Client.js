@@ -1,4 +1,50 @@
-// Standalone client and DB emulator for standalone deployment (Vercel, Netlify, etc.)
+// Standalone client and DB emulator with secure backend proxy for Mistral AI
+export async function callChatAPI({ prompt, model = "mistral-large-2512", history = [] }) {
+  const messages = [
+    {
+      role: "system",
+      content: "Tu es Éclat BFC, un assistant IA utile, précis, rapide et concis. Réponds toujours en français et formate tes réponses en Markdown élégant avec des listes, gras et sections quand nécessaire."
+    }
+  ];
+
+  if (history && history.length > 0) {
+    history.forEach((m) => {
+      messages.push({
+        role: m.role === "user" ? "user" : "assistant",
+        content: m.content || ""
+      });
+    });
+  } else if (prompt) {
+    messages.push({
+      role: "user",
+      content: prompt
+    });
+  }
+
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      prompt,
+      model,
+      messages
+    })
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || `Erreur serveur (${res.status})`);
+  }
+
+  return {
+    response: data.response,
+    model: data.model || model,
+    status: "success"
+  };
+}
+
 export const db = globalThis.__B44_DB__ || {
   auth: {
     isAuthenticated: async () => true,
@@ -67,24 +113,11 @@ export const db = globalThis.__B44_DB__ || {
         }
         return { file_url: '' };
       },
-      InvokeLLM: async ({ prompt, model = 'gpt_5_4' }) => {
-        // Simulated AI response generator
-        await new Promise((r) => setTimeout(r, 600));
-
-        const isPing = prompt && prompt.toLowerCase().includes('ping');
-        if (isPing) {
-          return { response: 'pong', status: 'ok' };
-        }
-
-        // Clean and contextual reply
-        return {
-          response: `Je suis ravi de vous aider ! Vous avez posé votre question avec le modèle **${model}**.\n\nVoici les éléments clés en réponse à votre demande :\n- **Clarté et précision** : Analyse effectuée avec succès.\n- **Contexte** : Prêt pour approfondir vos requêtes.\n\nN'hésitez pas si vous souhaitez plus de précisions !`,
-          status: 'success'
-        };
+      InvokeLLM: async ({ prompt, model = 'mistral-large-2512' }) => {
+        return await callChatAPI({ prompt, model });
       },
       GenerateImage: async ({ prompt }) => {
         await new Promise((r) => setTimeout(r, 800));
-        const encoded = encodeURIComponent(prompt || 'abstract modern digital art');
         return {
           url: `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1000&q=80&sig=${Math.random().toString(36).slice(2)}`,
           prompt

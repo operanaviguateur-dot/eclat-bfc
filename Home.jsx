@@ -125,20 +125,16 @@ export default function Home() {
           created_at: new Date().toISOString(),
         };
       } else {
-        const file_urls = cleanAttachments.map((a) => a.file_url).filter(Boolean);
-        const history = (conversations.find((c) => c.id === convId)?.messages || [])
-          .concat([userMsg])
+        const historyMsgs = (conversations.find((c) => c.id === convId)?.messages || []).concat([userMsg]);
+        const historyText = historyMsgs
           .map((m) => `${m.role === "user" ? "Utilisateur" : "Assistant"}: ${m.content}`)
           .join("\n\n");
 
-        const prompt = `Tu es Éclat BFC, un assistant IA utile, clair et concis. Réponds en français, en Markdown quand c'est pertinent. Si des fichiers ou images sont joints, appuie-toi dessus.\n\n${history}\n\nAssistant:`;
+        const prompt = `Tu es Éclat BFC, un assistant IA utile, clair et concis. Réponds en français, en Markdown quand c'est pertinent.\n\n${historyText}\n\nAssistant:`;
 
-        const useWeb = ["gemini_3_flash", "gemini_3_1_pro"].includes(model);
         const res = await db.integrations.Core.InvokeLLM({
           prompt,
-          model,
-          ...(file_urls.length ? { file_urls } : {}),
-          ...(useWeb ? { add_context_from_internet: true } : {}),
+          model
         });
         const content = typeof res === "string" ? res : res?.response || JSON.stringify(res);
         aiMsg = { id: uid(), role: "assistant", content, model, created_at: new Date().toISOString() };
@@ -148,10 +144,11 @@ export default function Home() {
         prev.map((c) => (c.id === convId ? { ...c, messages: [...c.messages, aiMsg] } : c))
       );
     } catch (e) {
+      console.error("AI invocation error:", e);
       const errMsg = {
         id: uid(),
         role: "assistant",
-        content: "Désolé, une erreur est survenue. Veuillez réessayer.",
+        content: `Désolé, une erreur est survenue (${e.message || "erreur réseau"}). Veuillez réessayer.`,
         model,
         created_at: new Date().toISOString(),
       };
@@ -208,7 +205,7 @@ export default function Home() {
                   Comment puis-je vous aider ?
                 </h2>
                 <p className="mt-2 max-w-md text-sm text-muted-foreground">
-                  Posez une question, demandez un texte, une idée ou une analyse. Éclat BFC répond avec clarté et précision.
+                  Posez une question, demandez un texte, une idée ou une explication. Éclat BFC répond avec clarté.
                 </p>
               </div>
             ) : (
