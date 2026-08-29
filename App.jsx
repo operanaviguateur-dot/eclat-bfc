@@ -9,6 +9,9 @@ import ScrollToTop from './components/ScrollToTop';
 // Add page imports here
 import Home from '@/pages/Home';
 import Statut from '@/pages/Statut';
+import Modeles from '@/pages/Modeles';
+import Galerie from '@/pages/Galerie';
+import Statistiques from '@/pages/Statistiques';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -37,8 +40,11 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       {/* Add your page Route elements here */}
-      <Route path="/" element={<Home />} />
-      <Route path="/statut" element={<Statut />} />
+      <Route path="/" element={<Statut />} />
+      <Route path="/chat" element={<Home />} />
+      <Route path="/modeles" element={<Modeles />} />
+      <Route path="/galerie" element={<Galerie />} />
+      <Route path="/statistiques" element={<Statistiques />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

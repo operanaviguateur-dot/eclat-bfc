@@ -1,11 +1,12 @@
+const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
+
 import React, { useState, useEffect, useRef } from "react";
 import { Menu, Sparkles } from "lucide-react";
-import { db } from "@/api/base44Client";
 
 import Sidebar from "@/components/chat/Sidebar";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
-import ModelSelector from "@/components/chat/ModelSelector";
+import ModelSelector, { MODELS } from "@/components/chat/ModelSelector";
 import ThemeToggle from "@/components/chat/ThemeToggle";
 
 const STORAGE_KEY = "lumiere_conversations";
@@ -54,7 +55,7 @@ export default function Home() {
   }, [active?.messages, loading]);
 
   const newConversation = () => {
-    const conv = { id: uid(), title: "Nouvelle conversation", messages: [] };
+    const conv = { id: uid(), title: "Nouvelle conversation", messages: [], created_at: new Date().toISOString() };
     setConversations((prev) => [conv, ...prev]);
     setActiveId(conv.id);
     setSidebarOpen(false);
@@ -87,10 +88,11 @@ export default function Home() {
       role: "user",
       content: text,
       attachments: mode === "chat" ? cleanAttachments : undefined,
+      created_at: new Date().toISOString(),
     };
 
     if (!convId) {
-      const conv = { id: uid(), title: (text || "Image").slice(0, 40), messages: [userMsg] };
+      const conv = { id: uid(), title: (text || "Image").slice(0, 40), messages: [userMsg], created_at: new Date().toISOString() };
       convId = conv.id;
       setConversations((prev) => [conv, ...prev]);
       setActiveId(convId);
@@ -120,6 +122,8 @@ export default function Home() {
           role: "assistant",
           content: `Image générée pour : « ${text} »`,
           image_url: res.url,
+          model,
+          created_at: new Date().toISOString(),
         };
       } else {
         const file_urls = cleanAttachments.map((a) => a.file_url).filter(Boolean);
@@ -138,7 +142,7 @@ export default function Home() {
           ...(useWeb ? { add_context_from_internet: true } : {}),
         });
         const content = typeof res === "string" ? res : res?.response || JSON.stringify(res);
-        aiMsg = { id: uid(), role: "assistant", content };
+        aiMsg = { id: uid(), role: "assistant", content, model, created_at: new Date().toISOString() };
       }
 
       setConversations((prev) =>
@@ -149,6 +153,8 @@ export default function Home() {
         id: uid(),
         role: "assistant",
         content: "Désolé, une erreur est survenue. Veuillez réessayer.",
+        model,
+        created_at: new Date().toISOString(),
       };
       setConversations((prev) =>
         prev.map((c) => (c.id === convId ? { ...c, messages: [...c.messages, errMsg] } : c))
